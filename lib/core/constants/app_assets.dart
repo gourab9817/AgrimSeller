@@ -12,6 +12,17 @@ class AppAssets {
   static const String errorImage = 'assets/images/error_image.png';
   static const String successImage = 'assets/images/success_image.png';
   static const String random = 'assets/images/random.png';
+  static const String weather = 'assets/images/weather_demo.png';
+
+  // Crop Images
+  static const String wheat= 'assets/images/crops/wheat.png';
+  static const String millet= 'assets/images/crops/milets.png';
+  static const String vagetables= 'assets/images/crops/vagetables.png';
+  static const String onion= 'assets/images/crops/onion.png';
+  static const String tomato= 'assets/images/crops/tomatoo.png';
+  
+  
+  
 
   // SVG Assets
   static const String buyicon = 'assets/vectors/buyicon.svg';

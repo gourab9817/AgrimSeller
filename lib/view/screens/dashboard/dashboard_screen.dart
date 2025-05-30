@@ -10,6 +10,8 @@ import '../../../core/constants/app_assets.dart';
 import '../../widgets/appbar/navbar.dart';
 import 'buy_card.dart';
 import 'weather_data.dart';
+import 'package:provider/provider.dart';
+import '../../../view_model/profile/profile_view_model.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -20,6 +22,14 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final PageController _buyCropController = PageController(viewportFraction: 0.7);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProfileViewModel>(context, listen: false).fetchUserData();
+    });
+  }
 
   @override
   void dispose() {

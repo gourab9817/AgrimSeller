@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../../view_model/profile/profile_view_model.dart';
 
 class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   const DashboardAppBar({super.key});
@@ -11,6 +13,8 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profileViewModel = Provider.of<ProfileViewModel>(context);
+    final userName = profileViewModel.user?.name ?? 'Farmer';
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
@@ -19,7 +23,7 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Namaste Jonny',
+            'Namaste $userName',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: const Color(0xFF8B5C2A),
                   fontWeight: FontWeight.bold,

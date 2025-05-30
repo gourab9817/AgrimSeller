@@ -135,8 +135,7 @@ class CustomBottomNavBar extends StatelessWidget {
         );
         break;
       case 3:
-        // Replace with your Profile route if available
-        // Navigator.pushNamedAndRemoveUntil(context, AppRoutes.profile, (route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.profile, (route) => false);
         break;
     }
   }

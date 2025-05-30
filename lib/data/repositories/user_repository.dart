@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../models/user_model.dart';
 import '../services/firebase_service.dart';
 import '../services/local_storage_service.dart';
@@ -67,5 +68,18 @@ class UserRepository {
       await _localStorageService.saveUserData(user);
     }
     return result;
+  }
+
+  Future<bool> uploadProfilePicture(File imageFile) async {
+    final url = await _firebaseService.uploadProfilePicture(imageFile);
+    if (url != null) {
+      final user = await getCurrentUser();
+      if (user != null) {
+        final updatedUser = user.copyWith(profilePictureUrl: url);
+        await _localStorageService.saveUserData(updatedUser);
+      }
+      return true;
+    }
+    return false;
   }
 }

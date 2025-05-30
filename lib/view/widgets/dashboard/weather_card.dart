@@ -62,7 +62,7 @@ class WeatherCard extends StatelessWidget {
                     width: 55, // Slightly reduced icon size
                     height: 55,
                     child: Image.asset(
-                      AppAssets.random, // Using random.png as placeholder
+                      AppAssets.weather, // Using weather.png as placeholder
                       width: 55,
                       height: 55,
                       fit: BoxFit.contain,

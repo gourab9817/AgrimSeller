@@ -1,8 +1,10 @@
 import 'dart:developer' as developer;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../models/user_model.dart';
 import '../models/auth_exception.dart';
+import 'dart:io';
 // Add your Firebase imports here
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
@@ -10,6 +12,7 @@ import '../models/auth_exception.dart';
 class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   User? get currentUser => _auth.currentUser;
   bool get isUserLoggedIn => currentUser != null;
@@ -135,6 +138,28 @@ class FirebaseService {
     } catch (e, st) {
       developer.log('FirebaseService: Error updating user profile: $e', error: e, stackTrace: st);
       return false;
+    }
+  }
+
+  Future<String?> uploadProfilePicture(File imageFile) async {
+    try {
+      if (_auth.currentUser == null) {
+        throw AuthException(code: 'user-not-logged-in', message: 'User not logged in');
+      }
+      final userId = _auth.currentUser!.uid;
+      final storageRef = _storage.ref().child('buyersprofilepicture').child(userId);
+      final uploadTask = storageRef.putFile(imageFile, SettableMetadata(contentType: 'image/jpeg'));
+      final snapshot = await uploadTask;
+      if (snapshot.state == TaskState.success) {
+        final downloadUrl = await snapshot.ref.getDownloadURL();
+        await _firestore.collection('buyers').doc(userId).update({'profilePictureUrl': downloadUrl});
+        return downloadUrl;
+      } else {
+        throw Exception('Upload failed with state: ${snapshot.state}');
+      }
+    } catch (e, st) {
+      developer.log('FirebaseService: Error uploading profile picture: $e', error: e, stackTrace: st);
+      return null;
     }
   }
 

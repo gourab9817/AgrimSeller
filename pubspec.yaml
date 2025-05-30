@@ -40,7 +40,7 @@ dependencies:
   smooth_page_indicator: ^1.2.1
   intl: ^0.20.2
 
-
+  shared_preferences: ^2.5.3
   # Firebase - adjusted versions for compatibility
   firebase_core: ^3.13.1
   firebase_auth: ^5.5.2

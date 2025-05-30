@@ -43,3 +43,38 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# IDEs and editors
+.idea/
+.vscode/
+*.iml
+
+# Secrets and environment
+.env
+.env.*
+*.env
+firebase_options.dart
+
+# OS files
+.DS_Store
+*.swp
+
+# Other
+*.log
+
+# Coverage
+coverage/
+
+# Android/iOS
+android/.gradle/
+android/app/key.properties
+android/key.properties
+ios/Pods/
+ios/Runner/GeneratedPluginRegistrant.*
+
+# Misc
+*.keystore
+*.jks
+
+# Ignore test outputs
+/test/**/*.log

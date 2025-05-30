@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
+import '../../data/services/local_storage_service.dart';
 
 class SplashViewModel extends ChangeNotifier {
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
+
+  final LocalStorageService _localStorageService = LocalStorageService();
 
   Future<void> initializeApp(BuildContext context) async {
     try {
@@ -19,9 +22,14 @@ class SplashViewModel extends ChangeNotifier {
       _isInitialized = true;
       notifyListeners();
 
-      // Navigate to the DashboardScreen
+      // Check if user is logged in
+      final user = await _localStorageService.getUserData();
       if (context.mounted) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
+        if (user != null) {
+          Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
+        } else {
+          Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+        }
       }
     } catch (e) {
       debugPrint('Error initializing app: $e');

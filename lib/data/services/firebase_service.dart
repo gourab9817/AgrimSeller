@@ -163,6 +163,16 @@ class FirebaseService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchListedCrops() async {
+    try {
+      final querySnapshot = await _firestore.collection('Listed crops').get();
+      return querySnapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e, st) {
+      developer.log('FirebaseService: Error fetching listed crops: $e', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
   AuthException _handleFirebaseAuthException(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':

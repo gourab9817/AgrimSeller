@@ -82,4 +82,8 @@ class UserRepository {
     }
     return false;
   }
+
+  Future<List<Map<String, dynamic>>> fetchListedCrops() async {
+    return await _firebaseService.fetchListedCrops();
+  }
 }

@@ -125,8 +125,7 @@ class CustomBottomNavBar extends StatelessWidget {
         Navigator.pushNamedAndRemoveUntil(context, AppRoutes.dashboard, (route) => false);
         break;
       case 1:
-        // Replace with your Buy route if available
-        // Navigator.pushNamedAndRemoveUntil(context, AppRoutes.buy, (route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.buy, (route) => false);
         break;
       case 2:
         // Show coming soon or implement Calls route

@@ -9,6 +9,9 @@ import '../view/screens/auth/email_verification_screen.dart';
 import '../view/screens/profile/profile_screen.dart';
 import '../view_model/profile/profile_view_model.dart';
 import '../data/repositories/user_repository.dart';
+import '../view/screens/buy/buy_screen.dart';
+import '../view/screens/buy/claim_listing_screen.dart';
+import '../data/models/listing_model.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -18,6 +21,8 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String emailVerification = '/email-verification';
   static const String profile = '/profile';
+  static const String buy = '/buy';
+  static const String claimListing = '/claim-listing';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -48,6 +53,15 @@ class AppRoutes {
             ),
             child: const ProfileScreen(),
           ),
+        );
+      case buy:
+        return MaterialPageRoute(
+          builder: (context) => const BuyScreen(),
+        );
+      case claimListing:
+        final args = settings.arguments as ListingModel;
+        return MaterialPageRoute(
+          builder: (_) => ClaimListingScreen(listing: args),
         );
       default:
         return MaterialPageRoute(

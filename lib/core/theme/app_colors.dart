@@ -4,7 +4,7 @@ class AppColors {
   // Primary Colors
   static const Color orange = Color.fromARGB(255, 242, 128, 53);
   static const Color brown = Color(0xFF4A3C31);
-  static const Color originalOrange = Color(0xFFF5B041);
+  static const Color originalOrange = Color.fromARGB(255, 202, 129, 50);
   static const Color originalBrown = Color(0xFF8E5C42);
 
   // Secondary Colors

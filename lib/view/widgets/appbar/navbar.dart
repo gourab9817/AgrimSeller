@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../routes/app_routes.dart';
+import '../../widgets/popup/custom_notification.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -128,9 +129,9 @@ class CustomBottomNavBar extends StatelessWidget {
         Navigator.pushNamedAndRemoveUntil(context, AppRoutes.buy, (route) => false);
         break;
       case 2:
-        // Show coming soon or implement Calls route
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Calls feature coming soon!')),
+        CustomNotification.showComingSoon(
+          context: context,
+          message: 'Calls feature is coming soon!',
         );
         break;
       case 3:

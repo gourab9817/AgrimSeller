@@ -275,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       // Apply AppBar with correct styling
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppColors.orange,
+        backgroundColor: AppColors.originalOrange,
         automaticallyImplyLeading: false, // Remove default back button
         title: const Text(
           'Profile',
@@ -319,7 +319,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       decoration: const BoxDecoration(
-        color: AppColors.orange,
+        color: AppColors.originalOrange,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),
@@ -368,7 +368,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                   if (loadingProgress == null) return child;
                                   return const Center(
                                     child: CircularProgressIndicator(
-                                      color: AppColors.orange,
+                                      color: AppColors.originalOrange,
                                       strokeWidth: 2,
                                     ),
                                   );

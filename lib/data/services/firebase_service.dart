@@ -166,10 +166,60 @@ class FirebaseService {
   Future<List<Map<String, dynamic>>> fetchListedCrops() async {
     try {
       final querySnapshot = await _firestore.collection('Listed crops').get();
-      return querySnapshot.docs.map((doc) => doc.data()).toList();
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
     } catch (e, st) {
       developer.log('FirebaseService: Error fetching listed crops: $e', error: e, stackTrace: st);
       rethrow;
+    }
+  }
+
+  Future<void> createClaimedListing({
+    required String farmerId,
+    required String buyerId,
+    required DateTime claimedDateTime,
+    required String listingId,
+  }) async {
+    try {
+      final docRef = _firestore.collection('claimedlist').doc();
+      await docRef.set({
+        'id': docRef.id,
+        'farmerId': farmerId,
+        'buyerId': buyerId,
+        'claimedDateTime': claimedDateTime.toIso8601String(),
+        'listingId': listingId,
+      });
+    } catch (e, st) {
+      developer.log('FirebaseService: Error creating claimed listing: $e', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
+  Future<void> updateCropClaimedStatus({
+    required String listingId,
+    required bool claimed,
+  }) async {
+    try {
+      await _firestore.collection('Listed crops').doc(listingId).update({'claimed': claimed});
+    } catch (e, st) {
+      developer.log('FirebaseService: Error updating crop claimed status: $e', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchFarmerDataById(String farmerId) async {
+    try {
+      final doc = await _firestore.collection('farmers').doc(farmerId).get();
+      if (doc.exists) {
+        return doc.data();
+      }
+      return null;
+    } catch (e, st) {
+      developer.log('FirebaseService: Error fetching farmer data: $e', error: e, stackTrace: st);
+      return null;
     }
   }
 

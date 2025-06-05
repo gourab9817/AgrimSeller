@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class ListingModel {
   final String id;
+  final String farmerId;
   final String name;
   final String imagePath;
   final String location;
@@ -14,6 +15,7 @@ class ListingModel {
 
   ListingModel({
     required this.id,
+    required this.farmerId,
     required this.name,
     required this.imagePath,
     required this.location,
@@ -28,6 +30,7 @@ class ListingModel {
   factory ListingModel.fromMap(Map<String, dynamic> map) {
     return ListingModel(
       id: map['id'] ?? '',
+      farmerId: map['farmerId'] ?? '',
       name: map['name'] ?? '',
       imagePath: map['imagePath'] ?? '',
       location: map['location'] ?? '',
@@ -43,6 +46,7 @@ class ListingModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'farmerId': farmerId,
       'name': name,
       'imagePath': imagePath,
       'location': location,

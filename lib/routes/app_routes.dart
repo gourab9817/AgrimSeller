@@ -12,6 +12,9 @@ import '../data/repositories/user_repository.dart';
 import '../view/screens/buy/buy_screen.dart';
 import '../view/screens/buy/claim_listing_screen.dart';
 import '../data/models/listing_model.dart';
+import '../view/screens/buy/visit_schedule_screen.dart';
+import '../view/screens/buy/visit_site_screen.dart';
+import '../view_model/buy/visit_site_view_model.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -23,6 +26,8 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String buy = '/buy';
   static const String claimListing = '/claim-listing';
+  static const String visitSchedule = '/visit-schedule';
+  static const String visitSite = '/visit-site';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -62,6 +67,26 @@ class AppRoutes {
         final args = settings.arguments as ListingModel;
         return MaterialPageRoute(
           builder: (_) => ClaimListingScreen(listing: args),
+        );
+      case visitSchedule:
+        final args = settings.arguments as ListingModel;
+        return MaterialPageRoute(
+          builder: (_) => VisitScheduleScreen(listing: args),
+        );
+      case visitSite:
+        final args = settings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider(
+            create: (_) => VisitSiteViewModel(),
+            child: VisitSiteScreen(
+              listing: args['listing'] as ListingModel,
+              visitDateTime: args['visitDateTime'] as String,
+              contact: args['contact'] as String,
+              name: args['name'] as String,
+              address: args['address'] as String,
+              location: args['location'] as String,
+            ),
+          ),
         );
       default:
         return MaterialPageRoute(

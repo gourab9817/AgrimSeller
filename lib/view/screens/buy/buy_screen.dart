@@ -27,162 +27,212 @@ class _BuyScreenBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<BuyViewModel>(context);
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.brown),
-          onPressed: () => Navigator.of(context).pop(),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.brown),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: const Text('Buy', style: TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold)),
+          bottom: const TabBar(
+            labelColor: AppColors.orange,
+            unselectedLabelColor: AppColors.brown,
+            indicatorColor: AppColors.orange,
+            tabs: [
+              Tab(text: 'Listed Crops'),
+              Tab(text: 'Claimed Crops'),
+            ],
+          ),
         ),
-        title: const Text('Buy', style: TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold)),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l, vertical: AppSpacing.m),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search Bar
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                onChanged: viewModel.setSearchQuery,
-                decoration: InputDecoration(
-                  hintText: 'Search crops...',
-                  prefixIcon: const Icon(Icons.search, color: AppColors.brown),
-                  suffixIcon: viewModel.searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, color: AppColors.brown),
-                          onPressed: () => viewModel.setSearchQuery(''),
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l, vertical: AppSpacing.m),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Search Bar
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Tabs
-            Row(
-              children: [
-                _TabButton(
-                  label: 'Open listings',
-                  selected: viewModel.selectedTab == 0,
-                  onTap: () => viewModel.setTab(0),
-                ),
-                const SizedBox(width: 16),
-                _TabButton(
-                  label: 'My listings',
-                  selected: viewModel.selectedTab == 1,
-                  onTap: () => viewModel.setTab(1),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Filter chips
-            Row(
-              children: [
-                _FilterChip(
-                  label: 'Types',
-                  selected: viewModel.selectedType.isNotEmpty,
-                  onTap: () => _showFilterDialog(
-                    context,
-                    'Select Type',
-                    viewModel.uniqueTypes,
-                    viewModel.selectedType,
-                    (type) => viewModel.setTypeFilter(type),
+                child: TextField(
+                  onChanged: viewModel.setSearchQuery,
+                  decoration: InputDecoration(
+                    hintText: 'Search crops...',
+                    prefixIcon: const Icon(Icons.search, color: AppColors.brown),
+                    suffixIcon: viewModel.searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: AppColors.brown),
+                            onPressed: () => viewModel.setSearchQuery(''),
+                          )
+                        : null,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
                 ),
-                const SizedBox(width: 8),
-                _FilterChip(
-                  label: 'Location',
-                  selected: viewModel.selectedLocation.isNotEmpty,
-                  onTap: () => _showFilterDialog(
-                    context,
-                    'Select Location',
-                    viewModel.uniqueLocations,
-                    viewModel.selectedLocation,
-                    (location) => viewModel.setLocationFilter(location),
-                  ),
-                ),
-                if (viewModel.selectedType.isNotEmpty || viewModel.selectedLocation.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: _FilterChip(
-                      label: 'Clear',
-                      selected: false,
-                      onTap: viewModel.clearFilters,
+              ),
+              const SizedBox(height: 16),
+              // Filter chips
+              Row(
+                children: [
+                  _FilterChip(
+                    label: 'Types',
+                    selected: viewModel.selectedType.isNotEmpty,
+                    onTap: () => _showFilterDialog(
+                      context,
+                      'Select Type',
+                      viewModel.uniqueTypes,
+                      viewModel.selectedType,
+                      (type) => viewModel.setTypeFilter(type),
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Listings
-            Expanded(
-              child: Builder(
-                builder: (context) {
-                  if (viewModel.isLoading) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.orange));
-                  } else if (viewModel.filteredListings.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.network(
-                            'https://firebasestorage.googleapis.com/v0/b/agritech-fbd5e.appspot.com/o/crops%2Fno_data_found.png?alt=media',
-                            width: 120,
-                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, size: 80, color: Colors.grey),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text('No listings found', style: TextStyle(color: AppColors.brown)),
-                        ],
+                  const SizedBox(width: 8),
+                  _FilterChip(
+                    label: 'Location',
+                    selected: viewModel.selectedLocation.isNotEmpty,
+                    onTap: () => _showFilterDialog(
+                      context,
+                      'Select Location',
+                      viewModel.uniqueLocations,
+                      viewModel.selectedLocation,
+                      (location) => viewModel.setLocationFilter(location),
+                    ),
+                  ),
+                  if (viewModel.selectedType.isNotEmpty || viewModel.selectedLocation.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: _FilterChip(
+                        label: 'Clear',
+                        selected: false,
+                        onTap: viewModel.clearFilters,
                       ),
-                    );
-                  } else {
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        await viewModel.fetchListings();
-                      },
-                      child: ListView.builder(
-                        itemCount: viewModel.filteredListings.length,
-                        itemBuilder: (context, index) {
-                          final crop = viewModel.filteredListings[index];
-                          final listing = ListingModel.fromMap(crop);
-                          return ListingCard(
-                            imageUrl: crop['imagePath'] ?? '',
-                            cropName: crop['name'] ?? '-',
-                            location: crop['location'] ?? '-',
-                            quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
-                            listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
-                            onClaim: () {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoutes.claimListing,
-                                arguments: listing,
-                              );
-                            },
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoutes.claimListing,
-                                arguments: listing,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    );
-                  }
-                },
+                    ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              // Listings
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    if (viewModel.isLoading) {
+                      return const Center(child: CircularProgressIndicator(color: AppColors.orange));
+                    } else if (viewModel.filteredListings.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.network(
+                              'https://firebasestorage.googleapis.com/v0/b/agritech-fbd5e.appspot.com/o/crops%2Fno_data_found.png?alt=media',
+                              width: 120,
+                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, size: 80, color: Colors.grey),
+                            ),
+                            const SizedBox(height: 12),
+                            const Text('No listings found', style: TextStyle(color: AppColors.brown)),
+                          ],
+                        ),
+                      );
+                    } else {
+                      final openListings = viewModel.filteredListings.where((crop) => crop['claimed'] != true).toList();
+                      final claimedListings = viewModel.filteredListings.where((crop) => crop['claimed'] == true).toList();
+                      return TabBarView(
+                        children: [
+                          // Tab 1: Listed Crops
+                          RefreshIndicator(
+                            onRefresh: () async {
+                              await viewModel.fetchListings();
+                            },
+                            child: ListView.builder(
+                              itemCount: openListings.length,
+                              itemBuilder: (context, index) {
+                                final crop = openListings[index];
+                                final listing = ListingModel.fromMap(crop);
+                                return ListingCard(
+                                  imageUrl: crop['imagePath'] ?? '',
+                                  cropName: crop['name'] ?? '-',
+                                  location: crop['location'] ?? '-',
+                                  quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
+                                  listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
+                                  onClaim: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.claimListing,
+                                      arguments: listing,
+                                    );
+                                  },
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.claimListing,
+                                      arguments: listing,
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                          // Tab 2: Claimed Crops
+                          RefreshIndicator(
+                            onRefresh: () async {
+                              await viewModel.fetchListings();
+                            },
+                            child: ListView.builder(
+                              itemCount: claimedListings.length,
+                              itemBuilder: (context, index) {
+                                final crop = claimedListings[index];
+                                final listing = ListingModel.fromMap(crop);
+                                return ListingCard(
+                                  imageUrl: crop['imagePath'] ?? '',
+                                  cropName: crop['name'] ?? '-',
+                                  location: crop['location'] ?? '-',
+                                  quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
+                                  listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
+                                  onClaim: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.visitSite,
+                                      arguments: {
+                                        'listing': listing,
+                                        'visitDateTime': crop['visitDateTime']?.toString() ?? '3/3/2025, 10 am',
+                                        'contact': crop['contact']?.toString() ?? '+91 9988776655',
+                                        'name': crop['name']?.toString() ?? 'Rakesh Kumar',
+                                        'address': crop['address']?.toString() ?? 'Jaipur, Rajasthan, India',
+                                        'location': crop['location']?.toString() ?? 'Rampura, Jaipur, Rajasthan 302012, India',
+                                      },
+                                    );
+                                  },
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.visitSite,
+                                      arguments: {
+                                        'listing': listing,
+                                        'visitDateTime': crop['visitDateTime']?.toString() ?? '3/3/2025, 10 am',
+                                        'contact': crop['contact']?.toString() ?? '+91 9988776655',
+                                        'name': crop['name']?.toString() ?? 'Rakesh Kumar',
+                                        'address': crop['address']?.toString() ?? 'Jaipur, Rajasthan, India',
+                                        'location': crop['location']?.toString() ?? 'Rampura, Jaipur, Rajasthan 302012, India',
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
+        bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
     );
   }
 

@@ -153,7 +153,11 @@ class ClaimListingScreen extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                               ),
                               onPressed: () {
-                                // TODO: Implement claim logic
+                                Navigator.pushNamed(
+                                  context,
+                                  '/visit-schedule',
+                                  arguments: listing,
+                                );
                               },
                               child: Text('Claim Listing', style: AppTextStyle.bold16.copyWith(color: AppColors.brown)),
                             ),

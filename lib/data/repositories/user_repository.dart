@@ -86,4 +86,32 @@ class UserRepository {
   Future<List<Map<String, dynamic>>> fetchListedCrops() async {
     return await _firebaseService.fetchListedCrops();
   }
+
+  Future<void> createClaimedListing({
+    required String farmerId,
+    required String buyerId,
+    required DateTime claimedDateTime,
+    required String listingId,
+  }) async {
+    await _firebaseService.createClaimedListing(
+      farmerId: farmerId,
+      buyerId: buyerId,
+      claimedDateTime: claimedDateTime,
+      listingId: listingId,
+    );
+  }
+
+  Future<void> updateCropClaimedStatus({
+    required String listingId,
+    required bool claimed,
+  }) async {
+    await _firebaseService.updateCropClaimedStatus(
+      listingId: listingId,
+      claimed: claimed,
+    );
+  }
+
+  Future<Map<String, dynamic>?> fetchFarmerDataById(String farmerId) async {
+    return await _firebaseService.fetchFarmerDataById(farmerId);
+  }
 }

@@ -181,21 +181,57 @@ class FirebaseService {
     required String farmerId,
     required String buyerId,
     required DateTime claimedDateTime,
+    required DateTime visitDateTime,
     required String listingId,
+    required String location,
   }) async {
+    final listingRef = _firestore.collection('Listed crops').doc(listingId);
+    final claimedListRef = _firestore.collection('claimedlist').doc();
     try {
-      final docRef = _firestore.collection('claimedlist').doc();
-      await docRef.set({
-        'id': docRef.id,
-        'farmerId': farmerId,
-        'buyerId': buyerId,
-        'claimedDateTime': claimedDateTime.toIso8601String(),
-        'listingId': listingId,
+      await _firestore.runTransaction((transaction) async {
+        final listingSnap = await transaction.get(listingRef);
+        if (!listingSnap.exists) {
+          throw Exception('Listing does not exist.');
+        }
+        if (listingSnap.data()?['claimed'] == true) {
+          throw Exception('This listing has already been claimed.');
+        }
+        transaction.update(listingRef, {'claimed': true});
+        transaction.set(claimedListRef, {
+          'id': claimedListRef.id,
+          'farmerId': farmerId,
+          'buyerId': buyerId,
+          'claimedDateTime': claimedDateTime.toIso8601String(),
+          'visitDateTime': visitDateTime.toIso8601String(),
+          'listingId': listingId,
+          'location': location,
+          'VisitStatus': 'Pending',
+          'rescheduleCount': 0,
+        });
       });
     } catch (e, st) {
       developer.log('FirebaseService: Error creating claimed listing: $e', error: e, stackTrace: st);
-      rethrow;
+      throw Exception(e.toString());
     }
+  }
+
+  Future<void> updateClaimedVisitStatusAndRescheduleCount({
+    required String claimedId,
+    String? visitStatus,
+    bool incrementReschedule = false,
+    String? newVisitDateTime,
+    String? newLocation,
+  }) async {
+    final updateData = <String, dynamic>{};
+    if (visitStatus != null) updateData['VisitStatus'] = visitStatus;
+    if (incrementReschedule) {
+      final doc = await _firestore.collection('claimedlist').doc(claimedId).get();
+      final currentCount = (doc.data()?['rescheduleCount'] ?? 0) as int;
+      updateData['rescheduleCount'] = currentCount + 1;
+    }
+    if (newVisitDateTime != null) updateData['visitDateTime'] = newVisitDateTime;
+    if (newLocation != null) updateData['location'] = newLocation;
+    await _firestore.collection('claimedlist').doc(claimedId).update(updateData);
   }
 
   Future<void> updateCropClaimedStatus({
@@ -220,6 +256,70 @@ class FirebaseService {
     } catch (e, st) {
       developer.log('FirebaseService: Error fetching farmer data: $e', error: e, stackTrace: st);
       return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchClaimedCropsForBuyer(String buyerId) async {
+    try {
+      final querySnapshot = await _firestore.collection('claimedlist').where('buyerId', isEqualTo: buyerId).get();
+      final claimedListings = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+      // Fetch the actual crop details for each claimed listing
+      List<Map<String, dynamic>> crops = [];
+      for (var claimed in claimedListings) {
+        final listingId = claimed['listingId'];
+        final cropDoc = await _firestore.collection('Listed crops').doc(listingId).get();
+        if (cropDoc.exists) {
+          final cropData = cropDoc.data()!;
+          cropData['id'] = cropDoc.id;
+          cropData['claimed'] = true;
+          cropData['claimedId'] = claimed['id'];
+          crops.add(cropData);
+        }
+      }
+      return crops;
+    } catch (e, st) {
+      developer.log('FirebaseService: Error fetching claimed crops: $e', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchVisitSiteData(String claimedId) async {
+    try {
+      final claimedDoc = await _firestore.collection('claimedlist').doc(claimedId).get();
+      if (!claimedDoc.exists) return null;
+      final claimedData = claimedDoc.data()!;
+      // Fetch crop details
+      final listingId = claimedData['listingId'];
+      final cropDoc = await _firestore.collection('Listed crops').doc(listingId).get();
+      final cropData = cropDoc.exists ? cropDoc.data()! : {};
+      // Fetch farmer details
+      final farmerId = claimedData['farmerId'];
+      final farmerDoc = await _firestore.collection('farmers').doc(farmerId).get();
+      final farmerData = farmerDoc.exists ? farmerDoc.data()! : {};
+      return {
+        'claimed': claimedData,
+        'crop': cropData,
+        'farmer': farmerData,
+      };
+    } catch (e, st) {
+      developer.log('FirebaseService: Error fetching visit site data: $e', error: e, stackTrace: st);
+      return null;
+    }
+  }
+
+  Future<void> cancelVisitAndClaim(String claimedId) async {
+    // 1. Update VisitStatus to 'Cancelled' in claimedlist
+    final claimedDoc = await _firestore.collection('claimedlist').doc(claimedId).get();
+    if (!claimedDoc.exists) throw Exception('Claimed document not found');
+    final listingId = claimedDoc.data()?['listingId'];
+    await _firestore.collection('claimedlist').doc(claimedId).update({'VisitStatus': 'Cancelled'});
+    // 2. Update claimed to false in Listed crops
+    if (listingId != null) {
+      await _firestore.collection('Listed crops').doc(listingId).update({'claimed': false});
     }
   }
 

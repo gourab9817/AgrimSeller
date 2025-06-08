@@ -1,27 +1,46 @@
 import 'package:flutter/material.dart';
-import '../../data/models/listing_model.dart';
+import '../../data/repositories/user_repository.dart';
 
 class VisitSiteViewModel extends ChangeNotifier {
-  bool isOnSiteLoading = false;
+  final UserRepository userRepository;
+  bool isLoading = false;
+  Map<String, dynamic>? visitSiteData;
+  String? errorMessage;
   bool isCancelLoading = false;
+  String? cancelError;
 
-  Future<void> markOnSite(ListingModel listing) async {
-    isOnSiteLoading = true;
+  VisitSiteViewModel({required this.userRepository});
+
+  Future<void> fetchVisitSiteData(String claimedId) async {
+    isLoading = true;
+    errorMessage = null;
     notifyListeners();
-    // TODO: Add Firestore/repo logic to mark as on site
-    await Future.delayed(const Duration(seconds: 1));
-    isOnSiteLoading = false;
+    try {
+      visitSiteData = await userRepository.fetchVisitSiteData(claimedId);
+      if (visitSiteData == null) {
+        errorMessage = 'No data found for this visit.';
+      }
+    } catch (e) {
+      errorMessage = 'Failed to fetch visit data.';
+    }
+    isLoading = false;
     notifyListeners();
-    // TODO: Show confirmation/snackbar
   }
 
-  Future<void> cancelVisit(ListingModel listing) async {
+  Future<bool> cancelVisit(String claimedId) async {
     isCancelLoading = true;
+    cancelError = null;
     notifyListeners();
-    // TODO: Add Firestore/repo logic to cancel the visit
-    await Future.delayed(const Duration(seconds: 1));
-    isCancelLoading = false;
-    notifyListeners();
-    // TODO: Show confirmation/snackbar
+    try {
+      await userRepository.cancelVisitAndClaim(claimedId);
+      isCancelLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      cancelError = 'Failed to cancel visit: $e';
+      isCancelLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
-}
+} 

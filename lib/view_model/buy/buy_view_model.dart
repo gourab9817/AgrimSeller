@@ -10,18 +10,24 @@ class BuyViewModel extends ChangeNotifier {
   String searchQuery = '';
   String selectedType = '';
   String selectedLocation = '';
+  List<Map<String, dynamic>> claimedCrops = [];
+  String? buyerId;
 
   BuyViewModel({required this.userRepository});
 
-  Future<void> fetchListings() async {
+  Future<void> fetchAllCrops(String buyerId) async {
     isLoading = true;
     notifyListeners();
     try {
+      // Fetch all unclaimed crops
       listings = await userRepository.fetchListedCrops();
+      // Fetch claimed crops for this user
+      claimedCrops = await userRepository.fetchClaimedCropsForBuyer(buyerId);
       applyFilters();
     } catch (e) {
       listings = [];
       filteredListings = [];
+      claimedCrops = [];
     }
     isLoading = false;
     notifyListeners();

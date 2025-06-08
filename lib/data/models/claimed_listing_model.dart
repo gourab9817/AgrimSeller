@@ -4,6 +4,8 @@ class ClaimedListingModel {
   final String buyerId;
   final DateTime claimedDateTime;
   final String listingId;
+  final String visitStatus;
+  final int rescheduleCount;
 
   ClaimedListingModel({
     required this.id,
@@ -11,6 +13,8 @@ class ClaimedListingModel {
     required this.buyerId,
     required this.claimedDateTime,
     required this.listingId,
+    required this.visitStatus,
+    required this.rescheduleCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -20,6 +24,8 @@ class ClaimedListingModel {
       'buyerId': buyerId,
       'claimedDateTime': claimedDateTime.toIso8601String(),
       'listingId': listingId,
+      'VisitStatus': visitStatus,
+      'rescheduleCount': rescheduleCount,
     };
   }
 
@@ -30,6 +36,8 @@ class ClaimedListingModel {
       buyerId: json['buyerId'] ?? '',
       claimedDateTime: DateTime.parse(json['claimedDateTime']),
       listingId: json['listingId'] ?? '',
+      visitStatus: json['VisitStatus'] ?? 'Pending',
+      rescheduleCount: json['rescheduleCount'] ?? 0,
     );
   }
 } 

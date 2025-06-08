@@ -58,6 +58,7 @@ class AppAssets {
   static const String errorAnimation = 'assets/animations/error.json';
   static const String comingSoonAnimation = 'assets/animations/coming_soon.json';
   static const String loadingAnimation = 'assets/animations/loading.json';
+  static const String exclamation = 'assets/animations/exclamation.json';
   static const String emptyAnimation = 'assets/animations/empty.json';
   static const String noInternetAnimation = 'assets/animations/no_internet.json';
 

@@ -91,13 +91,17 @@ class UserRepository {
     required String farmerId,
     required String buyerId,
     required DateTime claimedDateTime,
+    required DateTime visitDateTime,
     required String listingId,
+    required String location,
   }) async {
     await _firebaseService.createClaimedListing(
       farmerId: farmerId,
       buyerId: buyerId,
       claimedDateTime: claimedDateTime,
+      visitDateTime: visitDateTime,
       listingId: listingId,
+      location: location,
     );
   }
 
@@ -113,5 +117,33 @@ class UserRepository {
 
   Future<Map<String, dynamic>?> fetchFarmerDataById(String farmerId) async {
     return await _firebaseService.fetchFarmerDataById(farmerId);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchClaimedCropsForBuyer(String buyerId) async {
+    return await _firebaseService.fetchClaimedCropsForBuyer(buyerId);
+  }
+
+  Future<Map<String, dynamic>?> fetchVisitSiteData(String claimedId) async {
+    return await _firebaseService.fetchVisitSiteData(claimedId);
+  }
+
+  Future<void> updateClaimedVisitStatusAndRescheduleCount({
+    required String claimedId,
+    String? visitStatus,
+    bool incrementReschedule = false,
+    String? newVisitDateTime,
+    String? newLocation,
+  }) async {
+    await _firebaseService.updateClaimedVisitStatusAndRescheduleCount(
+      claimedId: claimedId,
+      visitStatus: visitStatus,
+      incrementReschedule: incrementReschedule,
+      newVisitDateTime: newVisitDateTime,
+      newLocation: newLocation,
+    );
+  }
+
+  Future<void> cancelVisitAndClaim(String claimedId) async {
+    await _firebaseService.cancelVisitAndClaim(claimedId);
   }
 }

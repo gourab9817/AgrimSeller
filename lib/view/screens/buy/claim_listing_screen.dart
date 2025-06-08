@@ -4,6 +4,7 @@ import '../../../core/constants/app_text_style.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../data/models/listing_model.dart';
 import '../../widgets/appbar/navbar.dart';
+import '../../../routes/app_routes.dart';
 
 class ClaimListingScreen extends StatelessWidget {
   final ListingModel listing;
@@ -155,7 +156,7 @@ class ClaimListingScreen extends StatelessWidget {
                               onPressed: () {
                                 Navigator.pushNamed(
                                   context,
-                                  '/visit-schedule',
+                                  AppRoutes.visitSchedule,
                                   arguments: listing,
                                 );
                               },

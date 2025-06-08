@@ -8,14 +8,17 @@ import '../../../routes/app_routes.dart';
 import '../../../view/widgets/appbar/navbar.dart';
 import '../../../view_model/buy/buy_view_model.dart';
 import '../../../data/models/listing_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BuyScreen extends StatelessWidget {
   const BuyScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    final buyerId = firebaseUser?.uid ?? '';
     return ChangeNotifierProvider(
-      create: (_) => BuyViewModel(userRepository: Provider.of(context, listen: false))..fetchListings(),
+      create: (_) => BuyViewModel(userRepository: Provider.of(context, listen: false))..fetchAllCrops(buyerId),
       child: const _BuyScreenBody(),
     );
   }
@@ -120,7 +123,7 @@ class _BuyScreenBody extends StatelessWidget {
                   builder: (context) {
                     if (viewModel.isLoading) {
                       return const Center(child: CircularProgressIndicator(color: AppColors.orange));
-                    } else if (viewModel.filteredListings.isEmpty) {
+                    } else if (viewModel.filteredListings.isEmpty && viewModel.claimedCrops.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -135,96 +138,77 @@ class _BuyScreenBody extends StatelessWidget {
                           ],
                         ),
                       );
-                    } else {
-                      final openListings = viewModel.filteredListings.where((crop) => crop['claimed'] != true).toList();
-                      final claimedListings = viewModel.filteredListings.where((crop) => crop['claimed'] == true).toList();
-                      return TabBarView(
-                        children: [
-                          // Tab 1: Listed Crops
-                          RefreshIndicator(
-                            onRefresh: () async {
-                              await viewModel.fetchListings();
-                            },
-                            child: ListView.builder(
-                              itemCount: openListings.length,
-                              itemBuilder: (context, index) {
-                                final crop = openListings[index];
-                                final listing = ListingModel.fromMap(crop);
-                                return ListingCard(
-                                  imageUrl: crop['imagePath'] ?? '',
-                                  cropName: crop['name'] ?? '-',
-                                  location: crop['location'] ?? '-',
-                                  quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
-                                  listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
-                                  onClaim: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      AppRoutes.claimListing,
-                                      arguments: listing,
-                                    );
-                                  },
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      AppRoutes.claimListing,
-                                      arguments: listing,
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                          // Tab 2: Claimed Crops
-                          RefreshIndicator(
-                            onRefresh: () async {
-                              await viewModel.fetchListings();
-                            },
-                            child: ListView.builder(
-                              itemCount: claimedListings.length,
-                              itemBuilder: (context, index) {
-                                final crop = claimedListings[index];
-                                final listing = ListingModel.fromMap(crop);
-                                return ListingCard(
-                                  imageUrl: crop['imagePath'] ?? '',
-                                  cropName: crop['name'] ?? '-',
-                                  location: crop['location'] ?? '-',
-                                  quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
-                                  listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
-                                  onClaim: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      AppRoutes.visitSite,
-                                      arguments: {
-                                        'listing': listing,
-                                        'visitDateTime': crop['visitDateTime']?.toString() ?? '3/3/2025, 10 am',
-                                        'contact': crop['contact']?.toString() ?? '+91 9988776655',
-                                        'name': crop['name']?.toString() ?? 'Rakesh Kumar',
-                                        'address': crop['address']?.toString() ?? 'Jaipur, Rajasthan, India',
-                                        'location': crop['location']?.toString() ?? 'Rampura, Jaipur, Rajasthan 302012, India',
-                                      },
-                                    );
-                                  },
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      AppRoutes.visitSite,
-                                      arguments: {
-                                        'listing': listing,
-                                        'visitDateTime': crop['visitDateTime']?.toString() ?? '3/3/2025, 10 am',
-                                        'contact': crop['contact']?.toString() ?? '+91 9988776655',
-                                        'name': crop['name']?.toString() ?? 'Rakesh Kumar',
-                                        'address': crop['address']?.toString() ?? 'Jaipur, Rajasthan, India',
-                                        'location': crop['location']?.toString() ?? 'Rampura, Jaipur, Rajasthan 302012, India',
-                                      },
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      );
                     }
+                    final openListings = viewModel.filteredListings.where((crop) => crop['claimed'] != true).toList();
+                    final claimedListings = viewModel.claimedCrops;
+                    return TabBarView(
+                      children: [
+                        // Tab 1: Listed Crops
+                        RefreshIndicator(
+                          onRefresh: () async {
+                            final firebaseUser = FirebaseAuth.instance.currentUser;
+                            final buyerId = firebaseUser?.uid ?? '';
+                            await viewModel.fetchAllCrops(buyerId);
+                          },
+                          child: ListView.builder(
+                            itemCount: openListings.length,
+                            itemBuilder: (context, index) {
+                              final crop = openListings[index];
+                              final listing = ListingModel.fromMap(crop);
+                              return ListingCard(
+                                imageUrl: crop['imagePath'] ?? '',
+                                cropName: crop['name'] ?? '-',
+                                location: crop['location'] ?? '-',
+                                quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
+                                listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
+                                onClaim: () {},
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.claimListing,
+                                    arguments: listing,
+                                  );
+                                },
+                                isClaimed: false,
+                              );
+                            },
+                          ),
+                        ),
+                        // Tab 2: Claimed Crops
+                        RefreshIndicator(
+                          onRefresh: () async {
+                            final firebaseUser = FirebaseAuth.instance.currentUser;
+                            final buyerId = firebaseUser?.uid ?? '';
+                            await viewModel.fetchAllCrops(buyerId);
+                          },
+                          child: ListView.builder(
+                            itemCount: claimedListings.length,
+                            itemBuilder: (context, index) {
+                              final crop = claimedListings[index];
+                              final listing = ListingModel.fromMap(crop);
+                              return ListingCard(
+                                imageUrl: crop['imagePath'] ?? '',
+                                cropName: crop['name'] ?? '-',
+                                location: crop['location'] ?? '-',
+                                quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
+                                listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
+                                onClaim: () {
+                                  // Removed: Navigator.pushNamed(context, AppRoutes.visitSite, ...);
+                                },
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.visitSite,
+                                    arguments: crop['claimedId'] ?? crop['id'],
+                                  );
+                                },
+                                isClaimed: true,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    );
                   },
                 ),
               ),

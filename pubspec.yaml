@@ -108,6 +108,8 @@ flutter:
     - assets/animations/success.json
     - assets/animations/error.json
     - assets/animations/coming_soon.json
+    - assets/animations/loading.json
+    - assets/animations/exclamation.json
   
   fonts:
     - family: Satoshi

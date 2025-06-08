@@ -10,6 +10,7 @@ class ListingCard extends StatelessWidget {
   final String listingDate;
   final VoidCallback onClaim;
   final VoidCallback? onTap;
+  final bool isClaimed;
 
   const ListingCard({
     Key? key,
@@ -20,6 +21,7 @@ class ListingCard extends StatelessWidget {
     required this.listingDate,
     required this.onClaim,
     this.onTap,
+    required this.isClaimed,
   }) : super(key: key);
 
   String getFullImageUrl() {
@@ -156,7 +158,7 @@ class ListingCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       OutlinedButton(
-                        onPressed: onClaim,
+                        onPressed: isClaimed ? null : onClaim,
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: AppColors.brown, width: 1.2),
                           shape: RoundedRectangleBorder(
@@ -166,9 +168,9 @@ class ListingCard extends StatelessWidget {
                           minimumSize: const Size(0, 32),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text(
-                          'Claim listing',
-                          style: TextStyle(
+                        child: Text(
+                          isClaimed ? 'Already Claimed' : 'Claim listing',
+                          style: const TextStyle(
                             color: AppColors.brown,
                             fontWeight: FontWeight.w600,
                             fontSize: 13,

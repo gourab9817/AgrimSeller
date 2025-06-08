@@ -16,7 +16,9 @@ class VisitScheduleViewModel extends ChangeNotifier {
     required String farmerId,
     required String buyerId,
     required DateTime claimedDateTime,
+    required DateTime visitDateTime,
     required String listingId,
+    required String location,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -27,7 +29,9 @@ class VisitScheduleViewModel extends ChangeNotifier {
         farmerId: farmerId,
         buyerId: buyerId,
         claimedDateTime: claimedDateTime,
+        visitDateTime: visitDateTime,
         listingId: listingId,
+        location: location,
       );
       await userRepository.updateCropClaimedStatus(
         listingId: listingId,
@@ -35,8 +39,11 @@ class VisitScheduleViewModel extends ChangeNotifier {
       );
       _farmerData = await userRepository.fetchFarmerDataById(farmerId);
       success = true;
-    } catch (e) {
-      errorMessage = e.toString();
+    } catch (e, st) {
+      errorMessage = e.toString().contains('already been claimed')
+        ? 'This listing has already been claimed by another user.'
+        : 'Failed to claim listing: ${e.toString()}';
+      print('Claim error: $e\n$st');
       success = false;
     }
     isLoading = false;

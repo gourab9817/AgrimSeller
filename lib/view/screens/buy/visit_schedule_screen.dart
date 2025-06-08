@@ -7,6 +7,8 @@ import '../../widgets/appbar/navbar.dart';
 import 'package:provider/provider.dart';
 import '../../../view_model/buy/visit_schedule_view_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../view/screens/buy/buy_screen.dart';
+import '../../../routes/app_routes.dart';
 
 class VisitScheduleScreen extends StatefulWidget {
   final ListingModel listing;
@@ -22,6 +24,7 @@ class _VisitScheduleScreenState extends State<VisitScheduleScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  DateTime? _selectedDateTime;
 
   @override
   void initState() {
@@ -68,6 +71,7 @@ class _VisitScheduleScreenState extends State<VisitScheduleScreen> {
       );
       if (time != null) {
         final dt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        _selectedDateTime = dt;
         _dateTimeController.text = '${dt.day}/${dt.month}/${dt.year}  ${time.format(context)}';
         setState(() {});
       }
@@ -199,7 +203,7 @@ class _VisitScheduleScreenState extends State<VisitScheduleScreen> {
                           _buildLabel('Seller Address :'),
                           _buildInputField(controller: _addressController, hint: 'Enter address'),
                           const SizedBox(height: 12),
-                          _buildLabel('Seller Location :'),
+                          _buildLabel('Please Enter the meeting point:'),
                           _buildInputField(controller: _locationController, hint: 'Enter location'),
                           const SizedBox(height: 24),
                           SizedBox(
@@ -216,13 +220,18 @@ class _VisitScheduleScreenState extends State<VisitScheduleScreen> {
                               onPressed: visitScheduleVM.isLoading
                                   ? null
                                   : () async {
-                                      if (_dateTimeController.text.isEmpty) {
+                                      if (_selectedDateTime == null) {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(content: Text('Please select visit date & time'), backgroundColor: AppColors.error),
                                         );
                                         return;
                                       }
-                                      final claimedDateTime = _parseDateTime(_dateTimeController.text);
+                                      if (_locationController.text.isEmpty) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Please enter the meeting point'), backgroundColor: AppColors.error),
+                                        );
+                                        return;
+                                      }
                                       final firebaseUser = FirebaseAuth.instance.currentUser;
                                       final buyerId = firebaseUser?.uid ?? '';
                                       if (buyerId.isEmpty) {
@@ -235,8 +244,10 @@ class _VisitScheduleScreenState extends State<VisitScheduleScreen> {
                                       await visitScheduleVM.scheduleVisit(
                                         farmerId: listing.farmerId,
                                         buyerId: buyerId,
-                                        claimedDateTime: claimedDateTime,
+                                        claimedDateTime: DateTime.now(),
+                                        visitDateTime: _selectedDateTime!,
                                         listingId: listing.id,
+                                        location: _locationController.text,
                                       );
                                       if (visitScheduleVM.success) {
                                         // Update seller fields with fetched farmer data
@@ -252,11 +263,15 @@ class _VisitScheduleScreenState extends State<VisitScheduleScreen> {
                                             SnackBar(content: Text('Visit scheduled! Seller location: ${farmer['location'] ?? 'N/A'}'), backgroundColor: AppColors.success),
                                           );
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Visit scheduled!'), backgroundColor: AppColors.success),
-                                          );
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Visit scheduled!'), backgroundColor: AppColors.success),
+                                        );
                                         }
-                                        Navigator.of(context).pop();
+                                        Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          AppRoutes.buy,
+                                          (route) => false,
+                                        );
                                       } else if (visitScheduleVM.errorMessage != null) {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(content: Text(visitScheduleVM.errorMessage!), backgroundColor: AppColors.error),
@@ -314,23 +329,5 @@ class _VisitScheduleScreenState extends State<VisitScheduleScreen> {
         suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: AppColors.grey, size: 20) : null,
       ),
     );
-  }
-
-  DateTime _parseDateTime(String input) {
-    // Expects format: dd/MM/yyyy  HH:mm AM/PM
-    try {
-      final parts = input.split('  ');
-      final dateParts = parts[0].split('/');
-      final time = TimeOfDay.fromDateTime(DateTime.parse('2000-01-01 ' + parts[1]));
-      return DateTime(
-        int.parse(dateParts[2]),
-        int.parse(dateParts[1]),
-        int.parse(dateParts[0]),
-        time.hour,
-        time.minute,
-      );
-    } catch (_) {
-      return DateTime.now();
-    }
   }
 } 

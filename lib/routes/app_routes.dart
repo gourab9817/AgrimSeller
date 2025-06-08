@@ -14,7 +14,6 @@ import '../view/screens/buy/claim_listing_screen.dart';
 import '../data/models/listing_model.dart';
 import '../view/screens/buy/visit_schedule_screen.dart';
 import '../view/screens/buy/visit_site_screen.dart';
-import '../view_model/buy/visit_site_view_model.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -74,19 +73,9 @@ class AppRoutes {
           builder: (_) => VisitScheduleScreen(listing: args),
         );
       case visitSite:
-        final args = settings.arguments as Map<String, dynamic>;
+        final args = settings.arguments as String;
         return MaterialPageRoute(
-          builder: (_) => ChangeNotifierProvider(
-            create: (_) => VisitSiteViewModel(),
-            child: VisitSiteScreen(
-              listing: args['listing'] as ListingModel,
-              visitDateTime: args['visitDateTime'] as String,
-              contact: args['contact'] as String,
-              name: args['name'] as String,
-              address: args['address'] as String,
-              location: args['location'] as String,
-            ),
-          ),
+          builder: (_) => VisitSiteScreen(claimedId: args),
         );
       default:
         return MaterialPageRoute(

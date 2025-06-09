@@ -9,6 +9,7 @@ import '../../../view/widgets/appbar/navbar.dart';
 import '../../../view_model/buy/buy_view_model.dart';
 import '../../../data/models/listing_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../core/constants/app_text_style.dart';
 
 class BuyScreen extends StatelessWidget {
   const BuyScreen({Key? key}) : super(key: key);
@@ -36,10 +37,7 @@ class _BuyScreenBody extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.brown),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+          automaticallyImplyLeading: false,
           title: const Text('Buy', style: TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold)),
           bottom: const TabBar(
             labelColor: AppColors.orange,
@@ -170,6 +168,7 @@ class _BuyScreenBody extends StatelessWidget {
                                   );
                                 },
                                 isClaimed: false,
+                                visitStatus: null,
                               );
                             },
                           ),
@@ -181,30 +180,67 @@ class _BuyScreenBody extends StatelessWidget {
                             final buyerId = firebaseUser?.uid ?? '';
                             await viewModel.fetchAllCrops(buyerId);
                           },
-                          child: ListView.builder(
-                            itemCount: claimedListings.length,
-                            itemBuilder: (context, index) {
-                              final crop = claimedListings[index];
-                              final listing = ListingModel.fromMap(crop);
-                              return ListingCard(
-                                imageUrl: crop['imagePath'] ?? '',
-                                cropName: crop['name'] ?? '-',
-                                location: crop['location'] ?? '-',
-                                quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
-                                listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
-                                onClaim: () {
-                                  // Removed: Navigator.pushNamed(context, AppRoutes.visitSite, ...);
-                                },
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.visitSite,
-                                    arguments: crop['claimedId'] ?? crop['id'],
-                                  );
-                                },
-                                isClaimed: true,
-                              );
-                            },
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                                  child: Text('Visit Pending', style: AppTextStyle.bold18.copyWith(color: AppColors.brown)),
+                                ),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: viewModel.visitPendingCrops.length,
+                                  itemBuilder: (context, index) {
+                                    final crop = viewModel.visitPendingCrops[index];
+                                    final listing = ListingModel.fromMap(crop);
+                                    return ListingCard(
+                                      imageUrl: crop['imagePath'] ?? '',
+                                      cropName: crop['name'] ?? '-',
+                                      location: crop['location'] ?? '-',
+                                      quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
+                                      listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
+                                      onClaim: () {},
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          AppRoutes.visitSite,
+                                          arguments: crop['claimedId'] ?? crop['id'],
+                                        );
+                                      },
+                                      isClaimed: true,
+                                      visitStatus: crop['VisitStatus'],
+                                    );
+                                  },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                                  child: Text('Visit Cancelled Crops', style: AppTextStyle.bold18.copyWith(color: AppColors.error)),
+                                ),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: viewModel.visitCancelledCrops.length,
+                                  itemBuilder: (context, index) {
+                                    final crop = viewModel.visitCancelledCrops[index];
+                                    final listing = ListingModel.fromMap(crop);
+                                    return ListingCard(
+                                      imageUrl: crop['imagePath'] ?? '',
+                                      cropName: crop['name'] ?? '-',
+                                      location: crop['location'] ?? '-',
+                                      quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
+                                      listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
+                                      onClaim: () {},
+                                      onTap: () {}, // No action for cancelled
+                                      isClaimed: true,
+                                      visitStatus: crop['VisitStatus'],
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],

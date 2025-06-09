@@ -11,6 +11,7 @@ class ListingCard extends StatelessWidget {
   final VoidCallback onClaim;
   final VoidCallback? onTap;
   final bool isClaimed;
+  final String? visitStatus;
 
   const ListingCard({
     Key? key,
@@ -22,7 +23,22 @@ class ListingCard extends StatelessWidget {
     required this.onClaim,
     this.onTap,
     required this.isClaimed,
+    this.visitStatus,
   }) : super(key: key);
+
+  Color _getStatusColor() {
+    if (visitStatus == null) return AppColors.brown;
+    switch (visitStatus!.toLowerCase()) {
+      case 'pending':
+        return AppColors.blue;
+      case 'rescheduled and pending':
+        return AppColors.lightBlue;
+      case 'cancelled':
+        return AppColors.error;
+      default:
+        return AppColors.brown;
+    }
+  }
 
   String getFullImageUrl() {
     // If the imageUrl is a full Firebase Storage URL
@@ -160,7 +176,7 @@ class ListingCard extends StatelessWidget {
                       OutlinedButton(
                         onPressed: isClaimed ? null : onClaim,
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.brown, width: 1.2),
+                          side: BorderSide(color: _getStatusColor(), width: 1.2),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -169,9 +185,9 @@ class ListingCard extends StatelessWidget {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         child: Text(
-                          isClaimed ? 'Already Claimed' : 'Claim listing',
-                          style: const TextStyle(
-                            color: AppColors.brown,
+                          isClaimed ? (visitStatus ?? 'Already Claimed') : 'Claim listing',
+                          style: TextStyle(
+                            color: _getStatusColor(),
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),

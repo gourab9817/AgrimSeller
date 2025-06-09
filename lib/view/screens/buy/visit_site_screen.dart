@@ -56,27 +56,27 @@ class _VisitSiteBody extends StatelessWidget {
                         onRefresh: () async {
                           await viewModel.fetchVisitSiteData(claimedId);
                         },
-                        child: SingleChildScrollView(
+        child: SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: width > 500 ? 400 : width * 0.95,
-                              minWidth: 280,
-                            ),
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 16),
-                              padding: const EdgeInsets.all(18),
-                              decoration: BoxDecoration(
-                                color: AppColors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.shadow,
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: width > 500 ? 400 : width * 0.95,
+              minWidth: 280,
+            ),
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.shadow,
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
                               child: _VisitSiteDetails(data: data),
                             ),
                           ),
@@ -99,89 +99,89 @@ class _VisitSiteDetails extends StatelessWidget {
     final claimed = data['claimed'] ?? {};
     final viewModel = Provider.of<VisitSiteViewModel>(context);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                crop['imagePath'] ?? '',
-                width: 90,
-                height: 90,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 90,
-                  height: 90,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Quantity: ', style: AppTextStyle.medium14.copyWith(color: AppColors.grey)),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                crop['imagePath'] ?? '',
+                          width: 90,
+                          height: 90,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            width: 90,
+                            height: 90,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text('Quantity: ', style: AppTextStyle.medium14.copyWith(color: AppColors.grey)),
                       Text('${crop['quantity'] ?? '-'} quintals', style: AppTextStyle.medium14.copyWith(color: AppColors.brown)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text('Agreed Price: ', style: AppTextStyle.medium14.copyWith(color: AppColors.success)),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text('Agreed Price: ', style: AppTextStyle.medium14.copyWith(color: AppColors.success)),
                       Text('₹${crop['price'] ?? '-'} /quintal', style: AppTextStyle.medium14.copyWith(color: AppColors.success)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text('Quality indicator: ', style: AppTextStyle.medium14.copyWith(color: AppColors.grey)),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text('Quality indicator: ', style: AppTextStyle.medium14.copyWith(color: AppColors.grey)),
                       Text(crop['qualityIndicator'] ?? '-', style: AppTextStyle.medium14.copyWith(color: AppColors.brown)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text('Claimed Date: ', style: AppTextStyle.medium14.copyWith(color: AppColors.error)),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text('Claimed Date: ', style: AppTextStyle.medium14.copyWith(color: AppColors.error)),
                       Text((claimed['claimedDateTime'] ?? '').toString().split('T').first, style: AppTextStyle.medium14.copyWith(color: AppColors.error)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Center(
-          child: Text(
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Text(
             (crop['name'] ?? '-').toString().toUpperCase(),
-            style: AppTextStyle.bold20.copyWith(color: AppColors.brown),
-          ),
-        ),
-        const SizedBox(height: 18),
-        _buildLabel('Visit Date & Time :'),
+                      style: AppTextStyle.bold20.copyWith(color: AppColors.brown),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  _buildLabel('Visit Date & Time :'),
         _buildReadOnlyField(claimed['visitDateTime'] ?? '-'),
-        const SizedBox(height: 12),
+                  const SizedBox(height: 12),
         _buildLabel("Farmer's Contact :"),
         _buildReadOnlyField(farmer['phoneNumber'] ?? '-'),
-        const SizedBox(height: 12),
+                  const SizedBox(height: 12),
         _buildLabel("Farmer's Name :"),
         _buildReadOnlyField(farmer['name'] ?? '-'),
-        const SizedBox(height: 12),
+                  const SizedBox(height: 12),
         _buildLabel("Farmer's Address :"),
         _buildReadOnlyField(farmer['address'] ?? '-'),
-        const SizedBox(height: 12),
+                  const SizedBox(height: 12),
         _buildLabel('Meeting Location :'),
         _buildReadOnlyField(claimed['location'] ?? '-'),
-        const SizedBox(height: 24),
-        Row(
+                  const SizedBox(height: 24),
+                  Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+                    children: [
             SizedBox(
               width: 180,
               child: OutlinedButton(
@@ -217,31 +217,31 @@ class _VisitSiteDetails extends StatelessWidget {
             const SizedBox(width: 30),
             SizedBox(
               width: 180,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.success,
-                  shape: RoundedRectangleBorder(
+                            shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 2,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
+                            ),
+                            elevation: 2,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
                 onPressed: () {
                   // TODO: Implement 'I am on Site' logic
                 },
                 child: Text('I am on Site', style: AppTextStyle.bold18.copyWith(color: AppColors.white)),
-              ),
-            ),
-          ],
-        ),
+                        ),
+                      ),
+                    ],
+                  ),
         const SizedBox(height: 40),
-        Center(
+                  Center(
           child: SizedBox(
             width: 260,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.error, width: 1.2),
-                shape: RoundedRectangleBorder(
+                        shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -304,4 +304,4 @@ class _VisitSiteDetails extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -277,6 +277,7 @@ class FirebaseService {
           cropData['id'] = cropDoc.id;
           cropData['claimed'] = true;
           cropData['claimedId'] = claimed['id'];
+          cropData['VisitStatus'] = claimed['VisitStatus'] ?? 'Pending';
           crops.add(cropData);
         }
       }

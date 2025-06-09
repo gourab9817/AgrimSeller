@@ -6,6 +6,8 @@ class AppColors {
   static const Color brown = Color(0xFF4A3C31);
   static const Color originalOrange = Color.fromARGB(255, 202, 129, 50);
   static const Color originalBrown = Color(0xFF8E5C42);
+  static const Color blue = Color(0xFF0000FF);
+  static const Color lightBlue = Color(0xFF0000FF);
 
   // Secondary Colors
   static const Color lightOrange = Color(0xFFFFE4CC);

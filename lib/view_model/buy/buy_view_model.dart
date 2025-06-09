@@ -95,4 +95,7 @@ class BuyViewModel extends ChangeNotifier {
         .toSet()
         .toList();
   }
+
+  List<Map<String, dynamic>> get visitPendingCrops => claimedCrops.where((crop) => (crop['VisitStatus'] ?? 'Pending') != 'Cancelled').toList();
+  List<Map<String, dynamic>> get visitCancelledCrops => claimedCrops.where((crop) => (crop['VisitStatus'] ?? 'Pending') == 'Cancelled').toList();
 } 

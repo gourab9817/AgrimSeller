@@ -14,6 +14,9 @@ import '../view/screens/buy/claim_listing_screen.dart';
 import '../data/models/listing_model.dart';
 import '../view/screens/buy/visit_schedule_screen.dart';
 import '../view/screens/buy/visit_site_screen.dart';
+import '../view/screens/buy/deal/final_deal_screen.dart';
+import '../view/screens/buy/deal/upload_verification_documents_screen.dart';
+import '../view/screens/buy/deal/deal_completed_splash_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -27,6 +30,9 @@ class AppRoutes {
   static const String claimListing = '/claim-listing';
   static const String visitSchedule = '/visit-schedule';
   static const String visitSite = '/visit-site';
+  static const String finalDeal = '/final-deal';
+  static const String uploadVerificationDocs = '/upload-verification-docs';
+  static const String dealCompleted = '/deal-completed';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -76,6 +82,20 @@ class AppRoutes {
         final args = settings.arguments as String;
         return MaterialPageRoute(
           builder: (_) => VisitSiteScreen(claimedId: args),
+        );
+      case finalDeal:
+        final args = settings.arguments as String;
+        return MaterialPageRoute(
+          builder: (_) => FinalDealScreen(claimedId: args),
+        );
+      case uploadVerificationDocs:
+        final args = settings.arguments as String;
+        return MaterialPageRoute(
+          builder: (_) => UploadVerificationDocumentsScreen(claimedId: args),
+        );
+      case dealCompleted:
+        return MaterialPageRoute(
+          builder: (_) => const DealCompletedSplashScreen(),
         );
       default:
         return MaterialPageRoute(

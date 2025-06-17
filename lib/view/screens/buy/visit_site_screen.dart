@@ -8,16 +8,49 @@ import '../../../view_model/buy/visit_site_view_model.dart';
 import 'visit_site_reschedule_screen.dart';
 import '../../../view/widgets/popup/universal_confirmation_dialog.dart';
 import '../../../core/constants/app_assets.dart';
+import 'visit_site_on_site_options_screen.dart';
+import '../../../main.dart';
 
-class VisitSiteScreen extends StatelessWidget {
+class VisitSiteScreen extends StatefulWidget {
   final String claimedId;
   const VisitSiteScreen({Key? key, required this.claimedId}) : super(key: key);
 
   @override
+  State<VisitSiteScreen> createState() => _VisitSiteScreenState();
+}
+
+class _VisitSiteScreenState extends State<VisitSiteScreen> with RouteAware {
+  late VisitSiteViewModel viewModel;
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      viewModel = VisitSiteViewModel(userRepository: Provider.of(context, listen: false));
+      viewModel.fetchVisitSiteData(widget.claimedId);
+      _initialized = true;
+    }
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when coming back to this screen
+    viewModel.fetchVisitSiteData(widget.claimedId);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => VisitSiteViewModel(userRepository: Provider.of(context, listen: false))..fetchVisitSiteData(claimedId),
-      child: _VisitSiteBody(claimedId: claimedId),
+    return ChangeNotifierProvider<VisitSiteViewModel>.value(
+      value: viewModel,
+      child: _VisitSiteBody(claimedId: widget.claimedId),
     );
   }
 }
@@ -227,7 +260,11 @@ class _VisitSiteDetails extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                 onPressed: () {
-                  // TODO: Implement 'I am on Site' logic
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => VisitSiteOnSiteOptionsScreen(claimedId: data['claimed']['id']),
+                    ),
+                  );
                 },
                 child: Text('I am on Site', style: AppTextStyle.bold18.copyWith(color: AppColors.white)),
                         ),

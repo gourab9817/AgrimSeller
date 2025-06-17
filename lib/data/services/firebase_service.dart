@@ -324,6 +324,61 @@ class FirebaseService {
     }
   }
 
+  Future<void> updateFinalDealData({
+    required String claimedId,
+    required String farmerName,
+    required String cropName,
+    required int finalDealPrice,
+    required int farmerAadharNumber,
+    required String deliveryLocation,
+    required String deliveryDate,
+  }) async {
+    await _firestore.collection('claimedlist').doc(claimedId).update({
+      'farmer_name': farmerName,
+      'crop_name': cropName,
+      'final_deal_price': finalDealPrice,
+      'farmer_aadhar_number': farmerAadharNumber,
+      'delivery_location': deliveryLocation,
+      'delivery_date': deliveryDate,
+    });
+  }
+
+  Future<String?> uploadClaimedDealDoc({
+    required String claimedId,
+    required File file,
+    required String docType,
+  }) async {
+    try {
+      final fileName = '${docType}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final ref = _storage.ref().child('claimeddealdocs').child(claimedId).child(fileName);
+      final uploadTask = ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
+      final snapshot = await uploadTask;
+      if (snapshot.state == TaskState.success) {
+        return await snapshot.ref.getDownloadURL();
+      } else {
+        throw Exception('Upload failed with state: ${snapshot.state}');
+      }
+    } catch (e, st) {
+      developer.log('FirebaseService: Error uploading claimed deal doc: $e', error: e, stackTrace: st);
+      return null;
+    }
+  }
+
+  Future<void> updateClaimedListWithDocs({
+    required String claimedId,
+    required String? signedContractUrl,
+    required String? selfieWithFarmerUrl,
+    required String? finalProductPhotoUrl,
+  }) async {
+    final updateData = <String, dynamic>{
+      'VisitStatus': 'Completed',
+    };
+    if (signedContractUrl != null) updateData['signed_contract'] = signedContractUrl;
+    if (selfieWithFarmerUrl != null) updateData['selfie_with_farmer'] = selfieWithFarmerUrl;
+    if (finalProductPhotoUrl != null) updateData['final_product_photo'] = finalProductPhotoUrl;
+    await _firestore.collection('claimedlist').doc(claimedId).update(updateData);
+  }
+
   AuthException _handleFirebaseAuthException(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':

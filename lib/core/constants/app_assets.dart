@@ -13,6 +13,8 @@ class AppAssets {
   static const String successImage = 'assets/images/success_image.png';
   static const String random = 'assets/images/random.png';
   static const String weather = 'assets/images/weather_demo.png';
+  static const String Feature_pred  = 'assets/images/Feature_pred.png';
+  static const String Price  = 'assets/images/price_pred.png';
 
   // Crop Images
   static const String wheat= 'assets/images/crops/wheat.png';

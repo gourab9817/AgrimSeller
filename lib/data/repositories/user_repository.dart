@@ -146,4 +146,50 @@ class UserRepository {
   Future<void> cancelVisitAndClaim(String claimedId) async {
     await _firebaseService.cancelVisitAndClaim(claimedId);
   }
+
+  Future<void> updateFinalDealData({
+    required String claimedId,
+    required String farmerName,
+    required String cropName,
+    required int finalDealPrice,
+    required int farmerAadharNumber,
+    required String deliveryLocation,
+    required String deliveryDate,
+  }) async {
+    await _firebaseService.updateFinalDealData(
+      claimedId: claimedId,
+      farmerName: farmerName,
+      cropName: cropName,
+      finalDealPrice: finalDealPrice,
+      farmerAadharNumber: farmerAadharNumber,
+      deliveryLocation: deliveryLocation,
+      deliveryDate: deliveryDate,
+    );
+  }
+
+  Future<String?> uploadClaimedDealDoc({
+    required String claimedId,
+    required File file,
+    required String docType,
+  }) async {
+    return await _firebaseService.uploadClaimedDealDoc(
+      claimedId: claimedId,
+      file: file,
+      docType: docType,
+    );
+  }
+
+  Future<void> updateClaimedListWithDocs({
+    required String claimedId,
+    required String? signedContractUrl,
+    required String? selfieWithFarmerUrl,
+    required String? finalProductPhotoUrl,
+  }) async {
+    await _firebaseService.updateClaimedListWithDocs(
+      claimedId: claimedId,
+      signedContractUrl: signedContractUrl,
+      selfieWithFarmerUrl: selfieWithFarmerUrl,
+      finalProductPhotoUrl: finalProductPhotoUrl,
+    );
+  }
 }

@@ -93,17 +93,25 @@ class CustomBottomNavBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SvgPicture.asset(
               assetPath,
               height: 24,
               width: 24,
               colorFilter: ColorFilter.mode(
                 isSelected ? AppColors.orange : AppColors.brown,
                 BlendMode.srcIn,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 4),
-            Text(
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
               label,
               style: TextStyle(
                 color: isSelected ? AppColors.orange : AppColors.brown,
@@ -112,6 +120,8 @@ class CustomBottomNavBar extends StatelessWidget {
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ),
           ],
         ),

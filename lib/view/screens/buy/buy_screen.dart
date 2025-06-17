@@ -10,16 +10,49 @@ import '../../../view_model/buy/buy_view_model.dart';
 import '../../../data/models/listing_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../core/constants/app_text_style.dart';
+import '../../../main.dart';
 
-class BuyScreen extends StatelessWidget {
+class BuyScreen extends StatefulWidget {
   const BuyScreen({Key? key}) : super(key: key);
 
   @override
+  State<BuyScreen> createState() => _BuyScreenState();
+}
+
+class _BuyScreenState extends State<BuyScreen> with RouteAware {
+  late BuyViewModel viewModel;
+  late String buyerId;
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      buyerId = firebaseUser?.uid ?? '';
+      viewModel = BuyViewModel(userRepository: Provider.of(context, listen: false));
+      viewModel.fetchAllCrops(buyerId);
+      _initialized = true;
+    }
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when coming back to this screen
+    viewModel.fetchAllCrops(buyerId);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final firebaseUser = FirebaseAuth.instance.currentUser;
-    final buyerId = firebaseUser?.uid ?? '';
-    return ChangeNotifierProvider(
-      create: (_) => BuyViewModel(userRepository: Provider.of(context, listen: false))..fetchAllCrops(buyerId),
+    return ChangeNotifierProvider<BuyViewModel>.value(
+      value: viewModel,
       child: const _BuyScreenBody(),
     );
   }
@@ -137,45 +170,51 @@ class _BuyScreenBody extends StatelessWidget {
                         ),
                       );
                     }
-                    final openListings = viewModel.filteredListings.where((crop) => crop['claimed'] != true).toList();
+                      final openListings = viewModel.filteredListings.where((crop) => crop['claimed'] != true).toList();
                     final claimedListings = viewModel.claimedCrops;
-                    return TabBarView(
-                      children: [
-                        // Tab 1: Listed Crops
-                        RefreshIndicator(
-                          onRefresh: () async {
+                      return TabBarView(
+                        children: [
+                          // Tab 1: Listed Crops
+                          RefreshIndicator(
+                            onRefresh: () async {
                             final firebaseUser = FirebaseAuth.instance.currentUser;
                             final buyerId = firebaseUser?.uid ?? '';
                             await viewModel.fetchAllCrops(buyerId);
-                          },
-                          child: ListView.builder(
-                            itemCount: openListings.length,
-                            itemBuilder: (context, index) {
-                              final crop = openListings[index];
-                              final listing = ListingModel.fromMap(crop);
-                              return ListingCard(
-                                imageUrl: crop['imagePath'] ?? '',
-                                cropName: crop['name'] ?? '-',
-                                location: crop['location'] ?? '-',
-                                quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
-                                listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
-                                onClaim: () {},
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.claimListing,
-                                    arguments: listing,
-                                  );
-                                },
-                                isClaimed: false,
-                                visitStatus: null,
-                              );
                             },
+                            child: ListView.builder(
+                              itemCount: openListings.length,
+                              itemBuilder: (context, index) {
+                                final crop = openListings[index];
+                                final listing = ListingModel.fromMap(crop);
+                                return ListingCard(
+                                  imageUrl: crop['imagePath'] ?? '',
+                                  cropName: crop['name'] ?? '-',
+                                  location: crop['location'] ?? '-',
+                                  quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
+                                  listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
+                                  onClaim: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.claimListing,
+                                      arguments: listing,
+                                    );
+                                  },
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.claimListing,
+                                      arguments: listing,
+                                    );
+                                  },
+                                  isClaimed: false,
+                                  visitStatus: null,
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                        // Tab 2: Claimed Crops
-                        RefreshIndicator(
-                          onRefresh: () async {
+                          // Tab 2: Claimed Crops
+                          RefreshIndicator(
+                            onRefresh: () async {
                             final firebaseUser = FirebaseAuth.instance.currentUser;
                             final buyerId = firebaseUser?.uid ?? '';
                             await viewModel.fetchAllCrops(buyerId);
@@ -193,20 +232,20 @@ class _BuyScreenBody extends StatelessWidget {
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: viewModel.visitPendingCrops.length,
-                                  itemBuilder: (context, index) {
+                              itemBuilder: (context, index) {
                                     final crop = viewModel.visitPendingCrops[index];
-                                    final listing = ListingModel.fromMap(crop);
-                                    return ListingCard(
-                                      imageUrl: crop['imagePath'] ?? '',
-                                      cropName: crop['name'] ?? '-',
-                                      location: crop['location'] ?? '-',
-                                      quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
-                                      listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
+                                final listing = ListingModel.fromMap(crop);
+                                return ListingCard(
+                                  imageUrl: crop['imagePath'] ?? '',
+                                  cropName: crop['name'] ?? '-',
+                                  location: crop['location'] ?? '-',
+                                  quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
+                                  listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
                                       onClaim: () {},
                                       onTap: () {
-                                        Navigator.pushNamed(
-                                          context,
-                                          AppRoutes.visitSite,
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.visitSite,
                                           arguments: crop['claimedId'] ?? crop['id'],
                                         );
                                       },
@@ -239,12 +278,36 @@ class _BuyScreenBody extends StatelessWidget {
                                     );
                                   },
                                 ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                                  child: Text('Visit and Deal Completed', style: AppTextStyle.bold18.copyWith(color: AppColors.success)),
+                                ),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: viewModel.visitCompletedCrops.length,
+                                  itemBuilder: (context, index) {
+                                    final crop = viewModel.visitCompletedCrops[index];
+                                    final listing = ListingModel.fromMap(crop);
+                                    return ListingCard(
+                                      imageUrl: crop['imagePath'] ?? '',
+                                      cropName: crop['name'] ?? '-',
+                                      location: crop['location'] ?? '-',
+                                      quantity: (crop['quantity']?.toString() ?? '-') + ' Kg',
+                                      listingDate: crop['listedDate']?.toString().split(' ').first ?? '-',
+                                      onClaim: () {},
+                                      onTap: () {}, // No action for completed
+                                  isClaimed: true,
+                                      visitStatus: crop['VisitStatus'],
+                                );
+                              },
+                                ),
                               ],
                             ),
+                            ),
                           ),
-                        ),
-                      ],
-                    );
+                        ],
+                      );
                   },
                 ),
               ),

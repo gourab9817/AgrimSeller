@@ -78,43 +78,52 @@ class _VisitSiteBody extends StatelessWidget {
         ),
         title: const Text('Visit Site', style: TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold)),
       ),
-      body: Center(
-        child: isLoading
-            ? const CircularProgressIndicator(color: AppColors.orange)
-            : error != null
-                ? Text(error, style: AppTextStyle.bold16.copyWith(color: AppColors.error))
-                : data == null
-                    ? const SizedBox.shrink()
-                    : RefreshIndicator(
-                        onRefresh: () async {
-                          await viewModel.fetchVisitSiteData(claimedId);
-                        },
-        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: width > 500 ? 400 : width * 0.95,
-              minWidth: 280,
-            ),
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 16),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.shadow,
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-                              child: _VisitSiteDetails(data: data),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth > 700;
+          final contentWidth = isWide ? 600.0 : (constraints.maxWidth * 0.98);
+          return Center(
+            child: isLoading
+                ? const CircularProgressIndicator(color: AppColors.orange)
+                : error != null
+                    ? Text(error, style: AppTextStyle.bold16.copyWith(color: AppColors.error))
+                    : data == null
+                        ? const SizedBox.shrink()
+                        : RefreshIndicator(
+                            onRefresh: () async {
+                              await viewModel.fetchVisitSiteData(claimedId);
+                            },
+                            child: SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: contentWidth,
+                                  minWidth: 280,
+                                ),
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(
+                                    vertical: isWide ? 32 : 16,
+                                    horizontal: isWide ? 24 : 0,
+                                  ),
+                                  padding: EdgeInsets.all(isWide ? 32 : 18),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.shadow,
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: _VisitSiteDetails(data: data),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+          );
+        },
       ),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
     );
@@ -212,64 +221,133 @@ class _VisitSiteDetails extends StatelessWidget {
         _buildLabel('Meeting Location :'),
         _buildReadOnlyField(claimed['location'] ?? '-'),
                   const SizedBox(height: 24),
-                  Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-            SizedBox(
-              width: 180,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: AppColors.lightOrange,
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => UniversalConfirmationDialog(
-                      animationAsset: AppAssets.exclamation,
-                      message: 'Are you sure to reschedule the visit?',
-                      yesText: 'Yes',
-                      noText: 'No',
-                      onYes: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => VisitSiteRescheduleScreen(claimedId: data['claimed']['id']),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-                child: Text('Visit Reschedule', style: AppTextStyle.bold18.copyWith(color: AppColors.orange)),
-              ),
-            ),
-            const SizedBox(width: 30),
-            SizedBox(
-              width: 180,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.success,
-                            shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isWide = constraints.maxWidth > 420;
+                      if (isWide) {
+                        // Row layout for wide screens
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 180,
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: AppColors.lightOrange,
+                                  side: BorderSide.none,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => UniversalConfirmationDialog(
+                                      animationAsset: AppAssets.exclamation,
+                                      message: 'Are you sure to reschedule the visit?',
+                                      yesText: 'Yes',
+                                      noText: 'No',
+                                      onYes: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => VisitSiteRescheduleScreen(claimedId: data['claimed']['id']),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                                child: Text('Visit Reschedule', style: AppTextStyle.bold18.copyWith(color: AppColors.orange)),
+                              ),
                             ),
-                            elevation: 2,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                          ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => VisitSiteOnSiteOptionsScreen(claimedId: data['claimed']['id']),
-                    ),
-                  );
-                },
-                child: Text('I am on Site', style: AppTextStyle.bold18.copyWith(color: AppColors.white)),
-                        ),
-                      ),
-                    ],
+                            const SizedBox(width: 30),
+                            SizedBox(
+                              width: 180,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.success,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 2,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => VisitSiteOnSiteOptionsScreen(claimedId: data['claimed']['id']),
+                                    ),
+                                  );
+                                },
+                                child: Text('I am on Site', style: AppTextStyle.bold18.copyWith(color: AppColors.white)),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        // Column layout for small screens
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: AppColors.lightOrange,
+                                  side: BorderSide.none,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => UniversalConfirmationDialog(
+                                      animationAsset: AppAssets.exclamation,
+                                      message: 'Are you sure to reschedule the visit?',
+                                      yesText: 'Yes',
+                                      noText: 'No',
+                                      onYes: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => VisitSiteRescheduleScreen(claimedId: data['claimed']['id']),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                                child: Text('Visit Reschedule', style: AppTextStyle.bold18.copyWith(color: AppColors.orange)),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.success,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 2,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => VisitSiteOnSiteOptionsScreen(claimedId: data['claimed']['id']),
+                                    ),
+                                  );
+                                },
+                                child: Text('I am on Site', style: AppTextStyle.bold18.copyWith(color: AppColors.white)),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
         const SizedBox(height: 40),
                   Center(

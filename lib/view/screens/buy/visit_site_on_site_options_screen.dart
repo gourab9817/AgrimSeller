@@ -5,6 +5,8 @@ import '../../../core/constants/app_assets.dart';
 import '../../../view/widgets/Button/app_button.dart';
 import '../../../view/widgets/popup/custom_notification.dart';
 import '../../../routes/app_routes.dart';
+import 'deal/crop_analysis/capture_process_screen.dart';
+import '../../../view/screens/buy/deal/final_deal_screen.dart';
 
 class VisitSiteOnSiteOptionsScreen extends StatelessWidget {
   final String claimedId;
@@ -54,7 +56,7 @@ class VisitSiteOnSiteOptionsScreen extends StatelessWidget {
                   const SizedBox(height: 36),
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      final cardSize = isWide ? 200.0 : (constraints.maxWidth - 32) / 2;
+                      final cardSize = isWide ? 240.0 : constraints.maxWidth * 0.7;
                       return Column(
                         children: [
                           Row(
@@ -62,54 +64,71 @@ class VisitSiteOnSiteOptionsScreen extends StatelessWidget {
                             children: [
                               _ResponsiveOptionCard(
                                 imagePath: AppAssets.Feature_pred,
-                                label: "Crop Analysis",
+                                label: "Crop Analysis & Price Predection",
                                 color: AppColors.orange,
                                 cardSize: cardSize,
                                 onTap: () {
-                                  // TODO: Navigate to Crop Analysis
-                                },
-                              ),
-                              const SizedBox(width: 24),
-                              _ResponsiveOptionCard(
-                                imagePath: AppAssets.Price,
-                                label: "Price Prediction",
-                                color: AppColors.success,
-                                cardSize: cardSize,
-                                onTap: () {
-                                  CustomNotification.showComingSoon(
-                                    context: context,
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CaptureProcessScreen(claimedId: claimedId),
+                                    ),
                                   );
                                 },
                               ),
                             ],
                           ),
-                          const SizedBox(height: 36),
-                          Center(
-                            child: Text(
-                              'Lets proceed with the Deal finalization',
-                              style: AppTextStyle.bold18.copyWith(color: AppColors.brown),
-                              textAlign: TextAlign.center,
+                          const SizedBox(height: 32),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Card(
+                              elevation: 2,
+                              color: AppColors.lightOrange.withOpacity(0.7),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(color: AppColors.orange.withOpacity(0.18)),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(18.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('How to take a good crop photo:', style: AppTextStyle.bold16.copyWith(color: AppColors.brown)),
+                                    const SizedBox(height: 10),
+                                    _instructionRow('Keep the camera at a proper distance from the crop.'),
+                                    _instructionRow('Ensure good lighting for a clear photo.'),
+                                    _instructionRow('Once you clicked the photo, check for the analysis.'),
+                                    _instructionRow('Once you are done with the analysis, you will get to know about the detailed report of the crop.'),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 32),
                           Center(
-                            child: SizedBox(
-                              width: isWide ? 340 : double.infinity,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                maxWidth: 220,
+                                minWidth: 140,
+                              ),
                               child: BasicAppButton(
-                                title: 'Finalize deal',
+                                title: 'Next',
                                 onPressed: () {
-                                  Navigator.pushNamed(
+                                  Navigator.push(
                                     context,
-                                    AppRoutes.finalDeal,
-                                    arguments: claimedId,
+                                    MaterialPageRoute(
+                                      builder: (context) => CaptureProcessScreen(claimedId: claimedId),
+                                    ),
                                   );
                                 },
                                 height: 56,
                                 backgroundColor: AppColors.orange,
                                 textColor: Colors.white,
+                                width: null,
                               ),
                             ),
                           ),
+                          const SizedBox(height: 24),
                         ],
                       );
                     },
@@ -119,6 +138,20 @@ class VisitSiteOnSiteOptionsScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _instructionRow(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.check_circle_outline, color: AppColors.orange, size: 18),
+          const SizedBox(width: 8),
+          Expanded(child: Text(text, style: AppTextStyle.body)),
+        ],
       ),
     );
   }
